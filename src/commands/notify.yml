@@ -133,7 +133,7 @@ steps:
         }')
         <</ parameters.dashboard_link >>
         <<# parameters.button_links >>
-        for link in << parameters.lighthouse_ph_results_link >>; do
+        for link in << parameters.button_links >>; do
         	name="${link##*/}"
         	name="${name%*.html}"
         	attachments_json=$(echo $attachments_json | jq '.[].actions[.[].actions | length] |= . +
