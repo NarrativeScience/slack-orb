@@ -67,7 +67,7 @@ parameters:
     type: boolean
     default: true
 
-  lighthouse_button_links:
+  test_results_button_links:
     description: A string (json formatted) with the test names and results links
     type: string
     default: ""
@@ -132,7 +132,7 @@ steps:
         	"url": "<< parameters.dashboard_link >>"
         }')
         <</ parameters.dashboard_link >>
-        <<# parameters.lighthouse_button_links >>
+        <<# parameters.test_results_button_links >>
         for link in << parameters.lighthouse_ph_results_link >>; do
         	name="${link##*/}"
         	name="${name%*.html}"
@@ -143,7 +143,7 @@ steps:
         		"url": "'"$link"'"
         	}')
         done
-        <</ parameters.lighthouse_button_links >>
+        <</ parameters.test_results_button_links >>
         # Provide error if no token is set and error. Otherwise continue
         if [[ -z "$SLACK_OAUTH_TOKEN" ]]; then
           echo "NO SLACK_OAUTH_TOKEN SET"
