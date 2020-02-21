@@ -87,53 +87,62 @@ steps:
       shell: /bin/bash
       command: |
         # set up attachments json
-        attachments_json='[{
-          "fallback": "<< parameters.message >> - $CIRCLE_BUILD_URL",
-          "text": "<< parameters.message >> $SLACK_MENTIONS",
-          "author_name": "<< parameters.author_name >>",
-          "author_link":"<< parameters.author_link >>",
-          "title": "<< parameters.title >>",
-          "title_link": "<< parameters.title_link >>",
-          "footer": "<< parameters.footer >>",
-          "ts": "<< parameters.ts >>",
-          "fields": [],
-          "actions": [],
-          "color": "<< parameters.color >>"
-        }]'
+        MESSAGE= << parameters.message >>
+        AUTHOR_NAME= << parameters.author_name >>
+        AUTHOR_LINK= << parameters.author_link >>
+        TITLE= << parameters.title >>
+        TITLE_LINK= << parameters.title_link >>
+        FOOTER= << parameters.footer >>
+        TS= << parameters.ts >>
+        COLOR= << parameters.color >>
+        attachments_json="[{
+          \"fallback\": \"$MESSAGE - $CIRCLE_BUILD_URL\",
+          \"text\": \"$MESSAGE $SLACK_MENTIONS\",
+          \"author_name\": \"$AUTHOR_NAME\",
+          \"author_link\": \"AUTHOR_LINK\",
+          \"title\": \"$TITLE\",
+          \"title_link\": \"$TITLE_LINK\",
+          \"footer\": \"$FOOTER\",
+          \"ts\": \"$TS\",
+          \"fields\": [],
+          \"actions\": [],
+          \"color\": \"$COLOR\"
+        }]"
         <<# parameters.include_project_field >>
-        attachments_json=$(echo $attachments_json | jq '.[].fields[.[].fields | length] |= . +
+        attachments_json=$(echo $attachments_json | jq ".[].fields[.[].fields | length] |= . +
         {
-          "title": "Project",
-          "value": "$CIRCLE_PROJECT_REPONAME",
-          "short": true
-        }')
+          \"title\": \"Project\",
+          \"value\": \"$CIRCLE_PROJECT_REPONAME\",
+          \"short\": true
+        }")
         <</ parameters.include_project_field >>
         <<# parameters.include_job_number_field >>
-        attachments_json=$(echo $attachments_json | jq '.[].fields[.[].fields | length] |= . +
+        attachments_json=$(echo $attachments_json | jq ".[].fields[.[].fields | length] |= . +
         {
-          "title": "Job Number",
-          "value": "$CIRCLE_BUILD_NUM",
-          "short": true
-        }')
+          \"title\": \"Job Number\",
+          \"value\": \"$CIRCLE_BUILD_NUM\",
+          \"short\": true
+        }")
         <</ parameters.include_job_number_field >>
         <<# parameters.include_visit_job_action >>
-        attachments_json=$(echo $attachments_json | jq '.[].actions[.[].actions | length] |= . +
+        attachments_json=$(echo $attachments_json | jq ".[].actions[.[].actions | length] |= . +
         {
-          "type": "button",
-          "text": "Visit Job",
-          "url": "$CIRCLE_BUILD_URL"
-        }')
+          \"type\": \"button\",
+          \"text\": \"Visit Job\",
+          \"url\": \"$CIRCLE_BUILD_URL\"
+        }")
         <</ parameters.include_visit_job_action >>
         <<# parameters.button_links >>
-        for link in << parameters.button_links >>; do
+        BUTTON_LINKS=<< parameters.button_links >>
+        for link in $BUTTON_LINKS; do
         	name="${link##*/}"
         	name="${name%*.html}"
-        	attachments_json=$(echo $attachments_json | jq '.[].actions[.[].actions | length] |= . +
+        	attachments_json=$(echo $attachments_json | jq ".[].actions[.[].actions | length] |= . +
         	{
-              "type": "button",
-              "text": "'"$name"'",
-              "url": "'"$link"'"
-        	}')
+              \"type\": \"button\",
+              \"text\": \"$name\",
+              \"url\": \"$link\"
+        	}")
         done
         <</ parameters.button_links >>
         echo $attachments_json
