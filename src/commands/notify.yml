@@ -136,7 +136,7 @@ steps:
         	}')
         done
         <</ parameters.button_links >>
-        print(attachments_json)
+        echo $attachments_json
         # Provide error if no token is set and error. Otherwise continue
         if [[ -z "$SLACK_OAUTH_TOKEN" ]]; then
           echo "NO SLACK_OAUTH_TOKEN SET"
