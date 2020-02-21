@@ -87,14 +87,14 @@ steps:
       shell: /bin/bash
       command: |
         # set up attachments json
-        MESSAGE=\"<< parameters.message >>\"
-        AUTHOR_NAME=\"<< parameters.author_name >>\"
-        AUTHOR_LINK=\"<< parameters.author_link >>\"
-        TITLE=\"<< parameters.title >>\"
-        TITLE_LINK=\"<< parameters.title_link >>\"
-        FOOTER=\"<< parameters.footer >>\"
-        TS=\"<< parameters.ts >>\"
-        COLOR=\"<< parameters.color >>\"
+        MESSAGE="\"<< parameters.message >>\""
+        AUTHOR_NAME="\"<< parameters.author_name >>\""
+        AUTHOR_LINK="\"<< parameters.author_link >>\""
+        TITLE="\"<< parameters.title >>\""
+        TITLE_LINK="\"<< parameters.title_link >>\""
+        FOOTER="\"<< parameters.footer >>\""
+        TS="\"<< parameters.ts >>\""
+        COLOR="\"<< parameters.color >>\""
         attachments_json="[{
           \"fallback\": \"$MESSAGE - $CIRCLE_BUILD_URL\",
           \"text\": \"$MESSAGE $SLACK_MENTIONS\",
@@ -133,7 +133,7 @@ steps:
         }")
         <</ parameters.include_visit_job_action >>
         <<# parameters.button_links >>
-        BUTTON_LINKS=\"<< parameters.button_links >>\"
+        BUTTON_LINKS="\"<< parameters.button_links >>\""
         for link in $BUTTON_LINKS; do
         	name="${link##*/}"
         	name="${name%*.html}"
