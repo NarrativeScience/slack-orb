@@ -134,8 +134,7 @@ steps:
         <</ parameters.include_visit_job_action >>
         <<# parameters.button_links >>
         button_links='<< parameters.button_links >>'
-        for link in '<< parameters.button_links >>'; do
-        $button_links
+        for link in $button_links; do
         	name="${link##*/}"
         	name="${name%*.html}"
         	attachments_json=$(echo $attachments_json | jq ".[].actions[.[].actions | length] |= . +
