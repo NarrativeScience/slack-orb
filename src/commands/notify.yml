@@ -133,7 +133,6 @@ steps:
         }")
         <</ parameters.include_visit_job_action >>
         <<# parameters.button_links >>
-
         IFS=' ' # space is set as delimiter
         read -ra button_links <<< "<< parameters.button_links >>"
         for link in "${button_links[@]}"; do
@@ -145,17 +144,6 @@ steps:
                   \"text\": \"$name\",
                   \"url\": \"$link\"
                 }")
-        done
-
-        for link in '<< parameters.button_links >>'; do
-        	name="${link##*/}"
-        	name="${name%*.html}"
-        	attachments_json=$(echo $attachments_json | jq ".[].actions[.[].actions | length] |= . +
-        	{
-              \"type\": \"button\",
-              \"text\": \"$name\",
-              \"url\": \"$link\"
-        	}")
         done
         <</ parameters.button_links >>
         echo $attachments_json
