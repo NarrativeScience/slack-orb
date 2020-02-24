@@ -179,4 +179,8 @@ steps:
             -d "attachments=[$attachments_json]"
           )
           curl "${CURL_ARGS[@]}" "https://slack.com/api/chat.postMessage"
+        echo "******************"
+        echo "******************"
+        echo "******************"
+        echo "******************"
         fi
