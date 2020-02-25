@@ -87,25 +87,18 @@ steps:
       shell: /bin/bash
       command: |
         # set up attachments json
-        AUTHOR_NAME="<< parameters.author_name >>"
-        AUTHOR_LINK="<< parameters.author_link >>"
-        TITLE="<< parameters.title >>"
-        TITLE_LINK="<< parameters.title_link >>"
-        FOOTER="<< parameters.footer >>"
-        TS="<< parameters.ts >>"
-        COLOR="<< parameters.color >>"
         attachments_json="[{
           \"fallback\": \"<< parameters.message >> - $CIRCLE_BUILD_URL\",
           \"text\": \"$MESSAGE $SLACK_MENTIONS\",
-          \"author_name\": \"$AUTHOR_NAME\",
-          \"author_link\": \"$AUTHOR_LINK\",
-          \"title\": \"$TITLE\",
-          \"title_link\": \"$TITLE_LINK\",
-          \"footer\": \"$FOOTER\",
-          \"ts\": \"$TS\",
+          \"author_name\": \"<< parameters.author_name >>\",
+          \"author_link\": \"<< parameters.author_link >>\",
+          \"title\": \"<< parameters.title >>\",
+          \"title_link\": \"<< parameters.title_link >>"\",
+          \"footer\": \"<< parameters.footer >>\",
+          \"ts\": \"<< parameters.ts >>\",
           \"fields\": [],
           \"actions\": [],
-          \"color\": \"$COLOR\"
+          \"color\": \"<< parameters.color >>\"
         }]"
         <<# parameters.include_project_field >>
         attachments_json=$(echo $attachments_json | jq ".[].fields[.[].fields | length] |= . +
