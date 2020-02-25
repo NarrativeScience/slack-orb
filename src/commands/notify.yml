@@ -98,12 +98,12 @@ steps:
         attachments_json="[{
           \"fallback\": \"$MESSAGE - $CIRCLE_BUILD_URL\",
           \"text\": \"$MESSAGE $SLACK_MENTIONS\",
-          \"author_name\": \"$AUTHOR_NAME\",
-          \"author_link\": \"$AUTHOR_LINK\",
+#          \"author_name\": \"$AUTHOR_NAME\",
+#          \"author_link\": \"$AUTHOR_LINK\",
           \"title\": \"$TITLE\",
-          \"title_link\": \"$TITLE_LINK\",
-          \"footer\": \"$FOOTER\",
-          \"ts\": \"$TS\",
+#          \"title_link\": \"$TITLE_LINK\",
+#          \"footer\": \"$FOOTER\",
+#          \"ts\": \"$TS\",
           \"fields\": [],
           \"actions\": [],
           \"color\": \"$COLOR\"
@@ -179,8 +179,4 @@ steps:
             -d "attachments=[$attachments_json]"
           )
           curl "${CURL_ARGS[@]}" "https://slack.com/api/chat.postMessage"
-        echo "******************"
-        echo "******************"
-        echo "******************"
-        echo "******************"
         fi
