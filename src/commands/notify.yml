@@ -187,7 +187,7 @@ steps:
             <<# parameters.channel >>
             -d "channel=<< parameters.channel >>"
             <</ parameters.channel >>
-            -d "attachments="$encoded_attachments_json"
+            -d "attachments=$encoded_attachments_json"
           )
           curl "${CURL_ARGS[@]}" "https://slack.com/api/chat.postMessage"
         fi
