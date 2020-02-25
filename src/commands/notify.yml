@@ -101,7 +101,7 @@ steps:
           \"actions\": [], \
           \"color\": \"<< parameters.color >>\" \
         } \
-        ] \"
+        ] "
         <<# parameters.include_project_field >>
         attachments_json=$(echo $attachments_json | jq ".[].fields[.[].fields | length] |= . +
         { \
