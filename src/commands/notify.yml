@@ -25,12 +25,12 @@ parameters:
   author_name:
     description: Optional author name
     type: string
-    default: ""
+    default: "asdf"
 
   author_link:
     description: Optional author link
     type: string
-    default: ""
+    default: "asdf"
 
   title:
     description: Optional title
@@ -45,12 +45,12 @@ parameters:
   footer:
     description: Optional footer
     type: string
-    default: ""
+    default: "asdf"
 
   ts:
     description: Optional timestamp
     type: string
-    default: ""
+    default: "asdf"
 
   include_project_field:
     description: Whether or not to include the Project field in the message
@@ -108,18 +108,18 @@ steps:
           \"author_link\": \"<< parameters.author_link >>\"
          }")
         <</ parameters.author_link >>
-        <<# parameters.parameters.ts >>
+        <<# parameters.ts >>
         attachments_json=$(echo $attachments_json | jq ".[] +=
         {
           \"ts\": \"<< parameters.ts >>\"
         }")
-        <</ parameters.parameters.ts >>
-        <<# parameters.parameters.footer >>
+        <</ parameters.ts >>
+        <<# parameters.footer >>
         attachments_json=$(echo $attachments_json | jq ".[] +=
         {
           \"footer\": \"<< parameters.footer >>\"
         }")
-        <</ parameters.parameters.footer >>
+        <</ parameters.footer >>
         <<# parameters.include_project_field >>
         attachments_json=$(echo $attachments_json | jq ".[].fields[.[].fields | length] |= . +
         {
