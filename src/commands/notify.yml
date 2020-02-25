@@ -25,12 +25,12 @@ parameters:
   author_name:
     description: Optional author name
     type: string
-    default: "asdf"
+    default: ""
 
   author_link:
     description: Optional author link
     type: string
-    default: "asdf"
+    default: ""
 
   title:
     description: Optional title
@@ -45,12 +45,12 @@ parameters:
   footer:
     description: Optional footer
     type: string
-    default: "asdf"
+    default: ""
 
   ts:
     description: Optional timestamp
     type: string
-    default: "asdf"
+    default: ""
 
   include_project_field:
     description: Whether or not to include the Project field in the message
@@ -108,6 +108,12 @@ steps:
           \"author_link\": \"<< parameters.author_link >>\"
          }")
         <</ parameters.author_link >>
+        <<# parameters.title_link >>
+        attachments_json=$(echo $attachments_json | jq ".[] +=
+        {
+          \"title_link\": \"<< parameters.title_link >>\"
+        }")
+        <</ parameters.title_link >>
         <<# parameters.ts >>
         attachments_json=$(echo $attachments_json | jq ".[] +=
         {
@@ -157,7 +163,6 @@ steps:
         	}")
         done
         <</ parameters.button_links >>
-        echo $attachments_json
         # Provide error if no token is set and error. Otherwise continue
         if [[ -z "$SLACK_OAUTH_TOKEN" ]]; then
           echo "NO SLACK_OAUTH_TOKEN SET"
