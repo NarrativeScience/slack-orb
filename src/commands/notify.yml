@@ -87,7 +87,6 @@ steps:
       shell: /bin/bash
       command: |
         # set up attachments json
-        MESSAGE="<< parameters.message >>"
         AUTHOR_NAME="<< parameters.author_name >>"
         AUTHOR_LINK="<< parameters.author_link >>"
         TITLE="<< parameters.title >>"
@@ -96,9 +95,14 @@ steps:
         TS="<< parameters.ts >>"
         COLOR="<< parameters.color >>"
         attachments_json="[{
-          \"fallback\": \"$MESSAGE - $CIRCLE_BUILD_URL\",
+          \"fallback\": \"<< parameters.message >> - $CIRCLE_BUILD_URL\",
           \"text\": \"$MESSAGE $SLACK_MENTIONS\",
+          \"author_name\": \"$AUTHOR_NAME\",
+          \"author_link\": \"$AUTHOR_LINK\",
           \"title\": \"$TITLE\",
+          \"title_link\": \"$TITLE_LINK\",
+          \"footer\": \"$FOOTER\",
+          \"ts\": \"$TS\",
           \"fields\": [],
           \"actions\": [],
           \"color\": \"$COLOR\"
