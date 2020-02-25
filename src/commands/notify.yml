@@ -87,44 +87,42 @@ steps:
       shell: /bin/bash
       command: |
         # set up attachments json
-        attachments_json="[ \
-        { \
-          \"fallback\": \"<< parameters.message >> - $CIRCLE_BUILD_URL\", \
-          \"text\": \"<< parameters.message >> $SLACK_MENTIONS\", \
-          \"author_name\": \"<< parameters.author_name >>\", \
-          \"author_link\": \"<< parameters.author_link >>\", \
-          \"title\": \"<< parameters.title >>\", \
-          \"title_link\": \"<< parameters.title_link >>\", \
-          \"footer\": \"<< parameters.footer >>\", \
-          \"ts\": \"<< parameters.ts >>\", \
-          \"fields\": [], \
-          \"actions\": [], \
-          \"color\": \"<< parameters.color >>\" \
-        } \
-        ] "
+        attachments_json="[{
+          \"fallback\": \"<< parameters.message >> - $CIRCLE_BUILD_URL\",
+          \"text\": \"<< parameters.message >> $SLACK_MENTIONS\",
+          \"author_name\": \"<< parameters.author_name >>\",
+          \"author_link\": \"<< parameters.author_link >>\",
+          \"title\": \"<< parameters.title >>\",
+          \"title_link\": \"<< parameters.title_link >>"\",
+          \"footer\": \"<< parameters.footer >>\",
+          \"ts\": \"<< parameters.ts >>\",
+          \"fields\": [],
+          \"actions\": [],
+          \"color\": \"<< parameters.color >>\"
+        }]"
         <<# parameters.include_project_field >>
         attachments_json=$(echo $attachments_json | jq ".[].fields[.[].fields | length] |= . +
-        { \
-          \"title\": \"Project\", \
-          \"value\": \"$CIRCLE_PROJECT_REPONAME\", \
-          \"short\": true \
-        } \")
+        {
+          \"title\": \"Project\",
+          \"value\": \"$CIRCLE_PROJECT_REPONAME\",
+          \"short\": true
+        }")
         <</ parameters.include_project_field >>
         <<# parameters.include_job_number_field >>
         attachments_json=$(echo $attachments_json | jq ".[].fields[.[].fields | length] |= . +
-        { \
-          \"title\": \"Job Number\", \
-          \"value\": \"$CIRCLE_BUILD_NUM\", \
-          \"short\": true \
-        } \")
+        {
+          \"title\": \"Job Number\",
+          \"value\": \"$CIRCLE_BUILD_NUM\",
+          \"short\": true
+        }")
         <</ parameters.include_job_number_field >>
         <<# parameters.include_visit_job_action >>
         attachments_json=$(echo $attachments_json | jq ".[].actions[.[].actions | length] |= . +
-        { \
-          \"type\": \"button\", \
-          \"text\": \"Visit Job\", \
-          \"url\": \"$CIRCLE_BUILD_URL\" \
-        } \")
+        {
+          \"type\": \"button\",
+          \"text\": \"Visit Job\",
+          \"url\": \"$CIRCLE_BUILD_URL\"
+        }")
         <</ parameters.include_visit_job_action >>
         <<# parameters.button_links >>
         button_links='<< parameters.button_links >>'
@@ -132,14 +130,33 @@ steps:
         	name="${link##*/}"
         	name="${name%*.html}"
         	attachments_json=$(echo $attachments_json | jq ".[].actions[.[].actions | length] |= . +
-        	{ \
-              \"type\": \"button\", \
-              \"text\": \"$name\", \
-              \"url\": \"$link\" \
-        	} \")
+        	{
+              \"type\": \"button\",
+              \"text\": \"$name\",
+              \"url\": \"$link\"
+        	}")
         done
         <</ parameters.button_links >>
-        echo "$attachments_json"
+        function rawurlencode {
+          local string="${1}"
+          local strlen=${#string}
+          local encoded=""
+          local pos c o
+
+          for (( pos=0 ; pos<strlen ; pos++ )); do
+             c=${string:${pos}:1}
+             case "$c" in
+                [-_.~a-zA-Z0-9] ) o="${c}" ;;
+                * )               printf -v o '%%%02x' "'$c"
+             esac
+             encoded+="${o}"
+          done
+          echo "${encoded}"    # You can either set a return variable (FASTER)
+          REPLY="${encoded}"   #+or echo the result (EASIER)... or both... :p
+        }
+        encoded_attachments_json=$(rawurlencode "$attachments_json")
+        echo $attachments_json
+        echo $encoded_attachments_json
         # Provide error if no token is set and error. Otherwise continue
         if [[ -z "$SLACK_OAUTH_TOKEN" ]]; then
           echo "NO SLACK_OAUTH_TOKEN SET"
@@ -170,7 +187,7 @@ steps:
             <<# parameters.channel >>
             -d "channel=<< parameters.channel >>"
             <</ parameters.channel >>
-            -d "attachments=[$attachments_json]"
+            -d "attachments=[$encoded_attachments_json]"
           )
           curl "${CURL_ARGS[@]}" "https://slack.com/api/chat.postMessage"
         fi
