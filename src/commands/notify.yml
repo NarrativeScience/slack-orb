@@ -25,12 +25,12 @@ parameters:
   author_name:
     description: Optional author name
     type: string
-    default: ""
+    default: "asdf"
 
   author_link:
     description: Optional author link
     type: string
-    default: ""
+    default: "asdf"
 
   title:
     description: Optional title
@@ -45,12 +45,12 @@ parameters:
   footer:
     description: Optional footer
     type: string
-    default: ""
+    default: "footer"
 
   ts:
     description: Optional timestamp
     type: string
-    default: ""
+    default: "ts"
 
   include_project_field:
     description: Whether or not to include the Project field in the message
@@ -90,16 +90,36 @@ steps:
         attachments_json="[{
           \"fallback\": \"<< parameters.message >> - $CIRCLE_BUILD_URL\",
           \"text\": \"<< parameters.message >> $SLACK_MENTIONS\",
-          \"author_name\": \"<< parameters.author_name >>\",
-          \"author_link\": \"<< parameters.author_link >>\",
           \"title\": \"<< parameters.title >>\",
           \"title_link\": \"<< parameters.title_link >>\",
-          \"footer\": \"<< parameters.footer >>\",
-          \"ts\": \"<< parameters.ts >>\",
           \"fields\": [],
           \"actions\": [],
           \"color\": \"<< parameters.color >>\"
         }]"
+        <<# parameters.author_name >>
+        attachments_json=$(echo $attachments_json | jq ".[] +=
+        {
+          \"author_name\": \""<< parameters.author_name >>\"
+        }")
+        <</ parameters.author_name >>
+        <<# parameters.author_link >>
+        attachments_json=$(echo $attachments_json | jq ".[] +=
+        {
+          \"author_link\": \""<< parameters.author_link >>\"
+         }")
+        <</ parameters.author_link >>
+        <<# parameters.parameters.ts >>
+        attachments_json=$(echo $attachments_json | jq ".[] +=
+        {
+          \"ts\": \""<< parameters.ts >>\"
+        }")
+        <</ parameters.parameters.ts >>
+        <<# parameters.parameters.footer >>
+        attachments_json=$(echo $attachments_json | jq ".[] +=
+        {
+          \"footer\": \""<< parameters.footer >>\"
+        }")
+        <</ parameters.parameters.footer >>
         <<# parameters.include_project_field >>
         attachments_json=$(echo $attachments_json | jq ".[].fields[.[].fields | length] |= . +
         {
@@ -137,6 +157,7 @@ steps:
         	}")
         done
         <</ parameters.button_links >>
+        echo $attachments_json
         # Provide error if no token is set and error. Otherwise continue
         if [[ -z "$SLACK_OAUTH_TOKEN" ]]; then
           echo "NO SLACK_OAUTH_TOKEN SET"
