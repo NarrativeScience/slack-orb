@@ -68,7 +68,7 @@ parameters:
     default: true
 
   button_links:
-    description: A string (space delimited) with the url names and links
+    description: A string (space delimited) with url links
     type: string
     default: ""
 
