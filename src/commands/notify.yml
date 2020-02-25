@@ -89,7 +89,7 @@ steps:
         # set up attachments json
         attachments_json="[{
           \"fallback\": \"<< parameters.message >> - $CIRCLE_BUILD_URL\",
-          \"text\": \"$MESSAGE $SLACK_MENTIONS\",
+          \"text\": \"<< parameters.message >> $SLACK_MENTIONS\",
           \"author_name\": \"<< parameters.author_name >>\",
           \"author_link\": \"<< parameters.author_link >>\",
           \"title\": \"<< parameters.title >>\",
