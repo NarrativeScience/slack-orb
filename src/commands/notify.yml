@@ -150,9 +150,8 @@ steps:
           \"url\": \"$CIRCLE_BUILD_URL\"
         }")
         <</ parameters.include_visit_job_action >>
-        echo << parameters.button_links >>
         <<# parameters.button_links >>
-        for link in \"<< parameters.button_links >>\"; do
+        for link in << parameters.button_links >>; do
         	name="${link##*/}"
         	name="${name%*.html}"
         	attachments_json=$(echo $attachments_json | jq ".[].actions[.[].actions | length] |= . +
