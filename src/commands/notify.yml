@@ -67,10 +67,11 @@ parameters:
     type: boolean
     default: true
 
-  dashboard_link:
-    description: The URL to the dashboard
+  button_links:
+    description: A string (space delimited) with url links
     type: string
     default: ""
+
 
 steps:
   - run:
@@ -85,6 +86,83 @@ steps:
       name: Slack Notification
       shell: /bin/bash
       command: |
+        # set up attachments json
+        attachments_json="[{
+          \"fallback\": \"<< parameters.message >> - $CIRCLE_BUILD_URL\",
+          \"text\": \"<< parameters.message >> $SLACK_MENTIONS\",
+          \"title\": \"<< parameters.title >>\",
+          \"title_link\": \"<< parameters.title_link >>\",
+          \"fields\": [],
+          \"actions\": [],
+          \"color\": \"<< parameters.color >>\"
+        }]"
+        <<# parameters.author_name >>
+        attachments_json=$(echo $attachments_json | jq ".[] +=
+        {
+          \"author_name\": \"<< parameters.author_name >>\"
+        }")
+        <</ parameters.author_name >>
+        <<# parameters.author_link >>
+        attachments_json=$(echo $attachments_json | jq ".[] +=
+        {
+          \"author_link\": \"<< parameters.author_link >>\"
+         }")
+        <</ parameters.author_link >>
+        <<# parameters.title_link >>
+        attachments_json=$(echo $attachments_json | jq ".[] +=
+        {
+          \"title_link\": \"<< parameters.title_link >>\"
+        }")
+        <</ parameters.title_link >>
+        <<# parameters.ts >>
+        attachments_json=$(echo $attachments_json | jq ".[] +=
+        {
+          \"ts\": \"<< parameters.ts >>\"
+        }")
+        <</ parameters.ts >>
+        <<# parameters.footer >>
+        attachments_json=$(echo $attachments_json | jq ".[] +=
+        {
+          \"footer\": \"<< parameters.footer >>\"
+        }")
+        <</ parameters.footer >>
+        <<# parameters.include_project_field >>
+        attachments_json=$(echo $attachments_json | jq ".[].fields[.[].fields | length] |= . +
+        {
+          \"title\": \"Project\",
+          \"value\": \"$CIRCLE_PROJECT_REPONAME\",
+          \"short\": true
+        }")
+        <</ parameters.include_project_field >>
+        <<# parameters.include_job_number_field >>
+        attachments_json=$(echo $attachments_json | jq ".[].fields[.[].fields | length] |= . +
+        {
+          \"title\": \"Job Number\",
+          \"value\": \"$CIRCLE_BUILD_NUM\",
+          \"short\": true
+        }")
+        <</ parameters.include_job_number_field >>
+        <<# parameters.include_visit_job_action >>
+        attachments_json=$(echo $attachments_json | jq ".[].actions[.[].actions | length] |= . +
+        {
+          \"type\": \"button\",
+          \"text\": \"Visit Job\",
+          \"url\": \"$CIRCLE_BUILD_URL\"
+        }")
+        <</ parameters.include_visit_job_action >>
+        <<# parameters.button_links >>
+        for link in << parameters.button_links >>; do
+        	name="${link##*/}"
+        	name="${name%*.html}"
+        	attachments_json=$(echo $attachments_json | jq ".[].actions[.[].actions | length] |= . +
+        	{
+              \"type\": \"button\",
+              \"text\": \"$name\",
+              \"url\": \"$link\"
+        	}")
+        done
+        <</ parameters.button_links >>
+        echo $attachments_json
         # Provide error if no token is set and error. Otherwise continue
         if [[ -z "$SLACK_OAUTH_TOKEN" ]]; then
           echo "NO SLACK_OAUTH_TOKEN SET"
@@ -115,51 +193,7 @@ steps:
             <<# parameters.channel >>
             -d "channel=<< parameters.channel >>"
             <</ parameters.channel >>
-            -d "attachments=[ \
-                { \
-                  \"fallback\": \"<< parameters.message >> - $CIRCLE_BUILD_URL\", \
-                  \"text\": \"<< parameters.message >> $SLACK_MENTIONS\", \
-                  \"author_name\": \"<< parameters.author_name >>\", \
-                  \"author_link\": \"<< parameters.author_link >>\", \
-                  \"title\": \"<< parameters.title >>\", \
-                  \"title_link\": \"<< parameters.title_link >>\", \
-                  \"footer\": \"<< parameters.footer >>\", \
-                  \"ts\": \"<< parameters.ts >>\", \
-                  \"fields\": [ \
-                    <<# parameters.include_project_field >>
-                    { \
-                      \"title\": \"Project\", \
-                      \"value\": \"$CIRCLE_PROJECT_REPONAME\", \
-                      \"short\": true \
-                    }, \
-                    <</ parameters.include_project_field >>
-                    <<# parameters.include_job_number_field >>
-                    { \
-                      \"title\": \"Job Number\", \
-                      \"value\": \"$CIRCLE_BUILD_NUM\", \
-                      \"short\": true \
-                    } \
-                    <</ parameters.include_job_number_field >>
-                  ], \
-                  \"actions\": [ \
-                    <<# parameters.include_visit_job_action >>
-                    { \
-                      \"type\": \"button\", \
-                      \"text\": \"Visit Job\", \
-                      \"url\": \"$CIRCLE_BUILD_URL\" \
-                    }, \
-                    <</ parameters.include_visit_job_action >>
-                    <<# parameters.dashboard_link >>
-                    { \
-                      \"type\": \"button\", \
-                      \"text\": \"Dashboard\", \
-                      \"url\": \"<< parameters.dashboard_link >>\" \
-                    } \
-                    <</ parameters.dashboard_link >>
-                  ], \
-                  \"color\": \"<< parameters.color >>\" \
-                } \
-              ]"
+            -d "attachments=$attachments_json"
           )
           curl "${CURL_ARGS[@]}" "https://slack.com/api/chat.postMessage"
         fi
